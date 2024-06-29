@@ -1,242 +1,173 @@
-<!-- <div class="container">
-
 <div class="card">
     <p-toast />
     <p-toolbar styleClass="mb-4 gap-2">
         <ng-template pTemplate="left">
-            <p-button 
-                pRipple 
-                severity="success" 
-                label="New" 
-                icon="pi pi-plus" 
-                class="mr-2" 
-                (click)="openNew()" />
-            <p-button 
-                pRipple 
-                severity="danger" 
-                label="Delete" 
-                icon="pi pi-trash" />
+            <p-button pRipple severity="success" label="New" icon="pi pi-plus" class="mr-2" (click)="openNew()" />
+            <p-button pRipple severity="danger" label="Delete" icon="pi pi-trash" (click)="deleteSelectedDocuments()"
+                [disabled]="!selectedDocuments || !selectedDocuments.length" />
         </ng-template>
 
         <ng-template pTemplate="right">
-            <p-fileUpload 
-                mode="basic" 
-                accept="image/*" 
-                [maxFileSize]="1000000" 
-                label="Import" 
-                chooseLabel="Import" 
+            <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import"
                 class="mr-2 inline-block" />
-            <p-button 
-                pRipple 
-                severity="help" 
-                label="Export" 
-                icon="pi pi-upload" />
+            <p-button pRipple severity="help" label="Export" icon="pi pi-upload" />
         </ng-template>
     </p-toolbar>
 
-    <p-table
-        #dt
-        [value]="Library"
-        [rows]="10"
-        [paginator]="true"
-        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
-        [tableStyle]="{ 'min-width': '75rem' }"
-        [(selection)]="selectedBook"
-        [rowHover]="true"
-        dataKey="id"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [showCurrentPageReport]="true"
-    >
+    <p-table #dt [value]="documents" [rows]="10" [paginator]="true"
+        [globalFilterFields]="['titre', 'details.annee', 'details.edition', 'details.auteur']"
+        [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedDocuments" [rowHover]="true" dataKey="_id"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées."
+        [showCurrentPageReport]="true">
         <ng-template pTemplate="caption">
             <div class="flex align-items-center justify-content-between">
-                <h5 class="m-0">Manage Products</h5>
                 <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
-                    <input 
-                        pInputText 
-                        type="text" 
-                        
+                    <input pInputText type="text" (input)="filterGlobal($event, dt)"
                         placeholder="Search..." />
                 </span>
             </div>
-        </ng-template>
+        </ng-template>        
         <ng-template pTemplate="header">
             <tr>
                 <th style="width: 4rem">
                     <p-tableHeaderCheckbox />
                 </th>
-                <th pSortableColumn="name" style="min-width:15rem">Image </th>
-                <th pSortableColumn="name" style="min-width:15rem">Titre </th>
-                <th>Disponible</th>
-                <th pSortableColumn="price">Type </th>
+                <th pSortableColumn="titre" style="min-width:15rem">
+                    Titre <p-sortIcon field="name" />
+                </th>
+                <th pSortableColumn="type">
+                    Type <p-sortIcon field="price" />
+                </th>
+                <th pSortableColumn="dispo" style="min-width:10rem">
+                    Disponibilité <p-sortIcon field="inventoryStatus" />
+                </th>
+                <th pSortableColumn="details.annee" style="min-width:10rem">
+                    Details <p-sortIcon field="details" />
+                </th>
                 <th></th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-book>
+        <ng-template pTemplate="body" let-document>
             <tr>
                 <td>
-                    <p-tableCheckbox [value]="book" />
+                    <p-tableCheckbox [value]="document" />
+                </td>
+                <td>
+                    {{ document.titre }}
+                </td>
+                <td>
+                    {{ document.type }}
+                </td>
+                <td>
+                    <p-tag [value]="document.dispo ? 'Disponible' : 'Non disponible'"
+                        [severity]="getDisponibility(document.dispo)" />
+                </td>
+                <td>
+                    <ng-container *ngIf="document.type === 'LIVRE'">
+                        <!-- Display livre details -->
+                        Année: {{ document.details.annee }}<br>
+                        Edition: {{ document.details.edition }}<br>
+                        Auteur: {{ document.details.auteur }}
+                    </ng-container>
+                    <ng-container *ngIf="document.type === 'PERIODIQUE'">
+                        <!-- Display periodique details -->
+                        Date: {{ document.details.date }}<br>
+                        Périodicité: {{ document.details.periodicite }}
+                    </ng-container>
                 </td>
 
-                <td>
-                <img 
-                    [src]="book.image" 
-                    [alt]="book.name" 
-                    width="50" 
-                    class="shadow-4" />
-                </td>
-                <td>
-                    {{ book.titre }}
-                </td>
-                <td>
-                    {{ book.price | currency : 'USD' }}
-                </td>
-                <td>
-                    <p-tag 
-                        [value]="book.dispo" />
-                </td>
-                <td>
-                    {{ book.type }}
-                </td>
 
                 <td>
-                    <p-button 
-                        pRipple 
-                        icon="pi pi-pencil" 
-                        class="mr-2" 
-                        [rounded]="true" 
-                        [outlined]="true" 
-                        severity="success" 
-                        />
-                    <p-button 
-                        pRipple 
-                        icon="pi pi-trash" 
-                        severity="danger" 
-                        [rounded]="true" 
-                        [outlined]="true" 
-                        />
+                    <p-button pRipple icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
+                        severity="success" (click)="editDocument(document)" />
+                    <p-button pRipple icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                        (click)="deleteDocument(document)" />
                 </td>
             </tr>
         </ng-template>
         <ng-template pTemplate="summary">
             <div class="flex align-items-center justify-content-between">
-                In total there are {{ Library ? Library.length : 0 }} products.
+                Au total, il y a {{ documents ? documents.length : 0 }} documents.
             </div>
         </ng-template>
     </p-table>
 
-    <p-dialog 
-        [(visible)]="BookDialog" 
-        [style]="{ width: '450px' }" 
-        header="Product Details" 
-        [modal]="true" 
+    <p-dialog [(visible)]="documentDialog" [style]="{ width: '450px' }" header="Document Details" [modal]="true"
         styleClass="p-fluid">
-            <ng-template pTemplate="content">
-                <img 
-                    [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + book.image" 
-                    [alt]="book.image" 
-                    class="block m-auto pb-3" 
-                    *ngIf="book.image" />
-                <div class="field">
-                    <label for="name">Name</label>
-                    <input 
-                        type="text" 
-                        pInputText 
-                        id="name" 
-                        [(ngModel)]="book.name" 
-                        required 
-                        autofocus />
-               
-                </div>
-                <div class="field">
-                    <label for="description">Description</label>
-                    <textarea 
-                        id="description" 
-                        pInputTextarea 
-                        [(ngModel)]="book.description" 
-                        required 
-                        rows="3" 
-                        cols="20">
+        <ng-template pTemplate="content">
+            <img [src]="'https://primefaces.org/cdn/primeng/images/demo/document/' + document.image"
+                [alt]="document.image" class="block m-auto pb-3" *ngIf="document.image" />
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" pInputText id="name" [(ngModel)]="document.name" required autofocus />
+                <small class="p-error" *ngIf="submitted && !document.name">
+                    Name is required.
+                </small>
+            </div>
+            <div class="field">
+                <label for="description">Description</label>
+                <textarea id="description" pInputTextarea [(ngModel)]="document.description" required rows="3"
+                    cols="20">
                     </textarea>
-                </div>
+            </div>
 
-                <div class="field">
-                    <label class="mb-3">Category</label>
-                    <div class="formgrid grid">
-                        <div class="field-radiobutton col-6">
-                            <p-radioButton 
-                                id="category1" 
-                                name="category" 
-                                value="Accessories" 
-                                [(ngModel)]="book.category" />
-                            <label for="category1">Accessories</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-radioButton 
-                                id="category2" 
-                                name="category" 
-                                value="Clothing" 
-                                [(ngModel)]="book.category" />
-                            <label for="category2">Clothing</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-radioButton 
-                                id="category3" 
-                                name="category" 
-                                value="Electronics" 
-                                [(ngModel)]="book.category" />
-                            <label for="category3">Electronics</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-radioButton 
-                                id="category4" 
-                                name="category" 
-                                value="Fitness" 
-                                [(ngModel)]="book.category" />
-                            <label for="category4">Fitness</label>
-                        </div>
-                    </div>
-                </div>
+            <div class="field">
+                <label for="inventoryStatus">Inventory Status</label>
+                <p-dropdown [(ngModel)]="document.inventoryStatus" inputId="inventoryStatus" [options]="statuses">
+                    <ng-template pTemplate="selectedItem">
+                        <p-tag [value]="document.inventoryStatus.toUpperCase()"
+                            [severity]="getDisponibility(document.dispo)" />
+                    </ng-template>
+                    <ng-template let-option pTemplate="item">
+                        <p-tag [value]="option.dispo" [severity]="getDisponibility(option.dispo)" />
+                    </ng-template>
+                </p-dropdown>
+            </div>
 
+            <div class="field">
+                <label class="mb-3">Category</label>
                 <div class="formgrid grid">
-                    <div class="field col">
-                        <label for="price">Price</label>
-                        <p-inputNumber 
-                            id="price" 
-                            [(ngModel)]="book.price" 
-                            mode="currency" 
-                            currency="USD" 
-                            locale="en-US" />
+                    <div class="field-radiobutton col-6">
+                        <p-radioButton id="category1" name="category" value="Accessories"
+                            [(ngModel)]="document.category" />
+                        <label for="category1">Accessories</label>
                     </div>
-                    <div class="field col">
-                        <label for="quantity">Quantity</label>
-                        <p-inputNumber 
-                            id="quantity" 
-                            [(ngModel)]="book.quantity" />
+                    <div class="field-radiobutton col-6">
+                        <p-radioButton id="category2" name="category" value="Clothing"
+                            [(ngModel)]="document.category" />
+                        <label for="category2">Clothing</label>
+                    </div>
+                    <div class="field-radiobutton col-6">
+                        <p-radioButton id="category3" name="category" value="Electronics"
+                            [(ngModel)]="document.category" />
+                        <label for="category3">Electronics</label>
+                    </div>
+                    <div class="field-radiobutton col-6">
+                        <p-radioButton id="category4" name="category" value="Fitness" [(ngModel)]="document.category" />
+                        <label for="category4">Fitness</label>
                     </div>
                 </div>
-            </ng-template>
+            </div>
 
-            <ng-template pTemplate="footer">
-                <p-button 
-                    pRipple 
-                    label="Cancel" 
-                    icon="pi pi-times" 
-                    [text]="true" 
-                     />
-                <p-button 
-                    pRipple 
-                    label="Save" 
-                    icon="pi pi-check" 
-                    [text]="true" 
-                     />
-            </ng-template>
+            <div class="formgrid grid">
+                <div class="field col">
+                    <label for="price">Price</label>
+                    <p-inputNumber id="price" [(ngModel)]="document.price" mode="currency" currency="USD"
+                        locale="en-US" />
+                </div>
+                <div class="field col">
+                    <label for="quantity">Quantity</label>
+                    <p-inputNumber id="quantity" [(ngModel)]="document.quantity" />
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <p-button pRipple label="Cancel" icon="pi pi-times" [text]="true" (click)="hideDialog()" />
+            <p-button pRipple label="Save" icon="pi pi-check" [text]="true" (click)="saveDocument()" />
+        </ng-template>
     </p-dialog>
 
     <p-confirmDialog [style]="{ width: '450px' }" />
 </div>
-
-
-
-</div>
- -->

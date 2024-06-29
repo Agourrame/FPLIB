@@ -4,9 +4,10 @@
     display: block;
 }
 
-
-.container{
-    width: 100%;
-    height: 100vh;
-    padding: 40px;
+.p-toolbar-group-start,
+.p-toolbar-group-center,
+.p-toolbar-group-end,
+.p-toolbar-group-left,
+.p-toolbar-group-right {
+    gap: 15px;
 }
