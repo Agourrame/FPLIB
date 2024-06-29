@@ -52,57 +52,30 @@ export class AppComponent implements OnInit {
   BookDialog: boolean = false;
   book: any;
 
-  apiKey = 'IVdfvkEkqEQ074NGPmYvqeRisEUPQPWusjhR9SAejephnur8ms8E53DzNhPBSGjV';
-
   constructor(
     private primengConfig: PrimeNGConfig,
-    private api:ApiService
-    ) {}
+    private api: ApiService
+  ) {}
 
   ngOnInit() {
     this.primengConfig.ripple = true;
 
-    var axios = require('axios');
-var data = JSON.stringify({
-    "collection": "students",
-    "database": "school",
-    "dataSource": "Cluster93482",
-    "projection": {
-        "_id": 1
-    }
-});
+    // Example: Fetching documents from your Express.js server
+    this.api.getDocuments().subscribe(
+      (documents: any) => {
+        console.log('Fetched documents:', documents);
+        // Optionally, do something with the fetched documents
+      },
+      (error) => {
+        console.error('Error fetching documents:', error);
+      }
+    );
 
-var config = {
-    method: 'post',
-    url: 'https://eu-west-2.aws.data.mongodb-api.com/app/data-cwegyzw/endpoint/data/v1/action/findOne',
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key': this.apiKey,
-    },
-    data: data
-};
-
-axios(config)
-    .then(function (response: { data: any; }) {
-        console.log(JSON.stringify(response.data));
-    })
-    .catch(function (error: any) {
-        console.log(error);
-    });
-
-
-    // this.api.getBooks().subscribe(ele=>{
-    //   console.log(ele);
-    // })
+    // Example: Opening a dialog
+    // this.openNew();
   }
 
-  Library: any = [];
-  selectedBook: any;
-
-  title = 'library_managment';
-
   openNew() {
-    this.BookDialog=true;
+    this.BookDialog = true;
   }
 }
