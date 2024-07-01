@@ -139,10 +139,27 @@ export class AppComponent implements OnInit {
     this.statuses = [true, false];
     this.exemplairesOptions = ["EX1", "EX2", "EX3", "EX4", "EX5"]
     this.periodiciteOptions = ["MENSUEL", "HEBDOMADAIRE", "JOURNALIER"]
+    this.document = {
+      titre: '',
+      dispo: false,
+      type: '',
+      exemplaires: null,
+      details : {
+        
+      }
+    };
   }
 
   openNew() {
-    this.document = {};
+    this.document = {
+      titre: '',
+      dispo: false,
+      type: '',
+      exemplaires: null,
+      details : {
+
+      }
+    };
     this.submitted = false;
     this.documentDialog = true;
   }
