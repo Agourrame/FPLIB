@@ -1,5 +1,7 @@
 use fplib;
 
+db.createCollection("documents")
+
 db.documents.insertOne({ titre: "Titre 1", dispo: true, type: "LIVRE", exemplaires: ["EX1", "EX2", "EX3"], details : { annee : 2024, auteur: "Ouchen Oussama", edition : "FPT"}});
 
 db.documents.insertOne({ titre: "Period 1", dispo: true, type: "PERIODIQUE", details : {date: "2024-06-24", periodicite : "MENSUEL"}});

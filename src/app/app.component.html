@@ -13,7 +13,7 @@
     </p-toolbar>
 
     <p-table #dt [value]="documents" [rows]="10" [paginator]="true"
-        [globalFilterFields]="['titre', 'details.annee', 'details.edition', 'details.auteur']"
+        [globalFilterFields]="['titre', 'type']"
         [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedDocuments" [rowHover]="true" dataKey="_id"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées."
         [showCurrentPageReport]="true">
