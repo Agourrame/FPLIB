@@ -1,7 +1,145 @@
 use fplib;
 
-db.createCollection("documents")
+db.createCollection("documents");
 
-db.documents.insertOne({ titre: "Titre 1", dispo: true, type: "LIVRE", exemplaires: ["EX1", "EX2", "EX3"], details : { annee : 2024, auteur: "Ouchen Oussama", edition : "FPT"}});
-
-db.documents.insertOne({ titre: "Period 1", dispo: true, type: "PERIODIQUE", details : {date: "2024-06-24", periodicite : "MENSUEL"}});
+db.documents.insertOne({ 
+    titre: "Titre 1", 
+    dispo: true, 
+    type: "LIVRE", 
+    exemplaires: ["EX1", "EX2", "EX3"], 
+    details: { 
+      annee: 2024, 
+      auteur: "Ouchen Oussama", 
+      edition: "FPT" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Learn MongoDB", 
+    dispo: false, 
+    type: "LIVRE", 
+    exemplaires: ["EX1", "EX2"], 
+    details: { 
+      annee: 2022, 
+      auteur: "John Doe", 
+      edition: "Tech Books" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Advanced Python Programming", 
+    dispo: true, 
+    type: "LIVRE", 
+    exemplaires: ["EX3"], 
+    details: { 
+      annee: 2021, 
+      auteur: "Jane Smith", 
+      edition: "Coding Press" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Mastering Data Science", 
+    dispo: true, 
+    type: "LIVRE", 
+    exemplaires: ["EX4", "EX5"], 
+    details: { 
+      annee: 2023, 
+      auteur: "Alice Johnson", 
+      edition: "Data Insights" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Introduction to Algorithms", 
+    dispo: false, 
+    type: "LIVRE", 
+    exemplaires: ["EX1"], 
+    details: { 
+      annee: 2019, 
+      auteur: "Thomas H. Cormen", 
+      edition: "MIT Press" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Deep Learning with Python", 
+    dispo: true, 
+    type: "LIVRE", 
+    exemplaires: ["EX2", "EX3"], 
+    details: { 
+      annee: 2018, 
+      auteur: "Francois Chollet", 
+      edition: "Manning Publications" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Period 1", 
+    dispo: true, 
+    type: "PERIODIQUE", 
+    details: { 
+      date: "2024-06-24", 
+      periodicite: "MENSUEL" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Science Monthly", 
+    dispo: true, 
+    type: "PERIODIQUE", 
+    details: { 
+      date: "2024-06-01", 
+      periodicite: "MENSUEL" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Daily News", 
+    dispo: false, 
+    type: "PERIODIQUE", 
+    details: { 
+      date: "2024-06-30", 
+      periodicite: "JOURNALIER" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Weekly Tech", 
+    dispo: true, 
+    type: "PERIODIQUE", 
+    details: { 
+      date: "2024-06-23", 
+      periodicite: "HEBDOMADAIRE" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Health Journal", 
+    dispo: true, 
+    type: "PERIODIQUE", 
+    details: { 
+      date: "2024-05-15", 
+      periodicite: "MENSUEL" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Economic Times", 
+    dispo: true, 
+    type: "PERIODIQUE", 
+    details: { 
+      date: "2024-06-29", 
+      periodicite: "JOURNALIER" 
+    } 
+  });
+  
+  db.documents.insertOne({ 
+    titre: "Fashion Weekly", 
+    dispo: false, 
+    type: "PERIODIQUE", 
+    details: { 
+      date: "2024-06-20", 
+      periodicite: "HEBDOMADAIRE" 
+    } 
+  });
