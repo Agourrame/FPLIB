@@ -2,15 +2,13 @@
     <p-toast />
     <p-toolbar styleClass="mb-4 gap-2">
         <ng-template pTemplate="left">
-            <p-button pRipple severity="success" label="New" icon="pi pi-plus" class="mr-2" (click)="openNew()" />
-            <p-button pRipple severity="danger" label="Delete" icon="pi pi-trash" (click)="deleteSelectedDocuments()"
+            <p-button pRipple severity="success" label="Ajouter" icon="pi pi-plus" class="mr-2" (click)="openNew()" />
+            <p-button pRipple severity="danger" label="Supprimer" icon="pi pi-trash" (click)="deleteSelectedDocuments()"
                 [disabled]="!selectedDocuments || !selectedDocuments.length" />
         </ng-template>
 
         <ng-template pTemplate="right">
-            <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import"
-                class="mr-2 inline-block" />
-            <p-button pRipple severity="help" label="Export" icon="pi pi-upload" />
+            <p-button pRipple severity="help" label="Exporter" icon="pi pi-upload" (onClick)="export()" />
         </ng-template>
     </p-toolbar>
 
@@ -23,11 +21,10 @@
             <div class="flex align-items-center justify-content-between">
                 <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="filterGlobal($event, dt)"
-                        placeholder="Search..." />
+                    <input pInputText type="text" (input)="filterGlobal($event, dt)" placeholder="Search..." />
                 </span>
             </div>
-        </ng-template>        
+        </ng-template>
         <ng-template pTemplate="header">
             <tr>
                 <th style="width: 4rem">
@@ -96,71 +93,72 @@
     <p-dialog [(visible)]="documentDialog" [style]="{ width: '450px' }" header="Document Details" [modal]="true"
         styleClass="p-fluid">
         <ng-template pTemplate="content">
-            <img [src]="'https://primefaces.org/cdn/primeng/images/demo/document/' + document.image"
-                [alt]="document.image" class="block m-auto pb-3" *ngIf="document.image" />
             <div class="field">
-                <label for="name">Name</label>
-                <input type="text" pInputText id="name" [(ngModel)]="document.name" required autofocus />
-                <small class="p-error" *ngIf="submitted && !document.name">
-                    Name is required.
-                </small>
-            </div>
-            <div class="field">
-                <label for="description">Description</label>
-                <textarea id="description" pInputTextarea [(ngModel)]="document.description" required rows="3"
-                    cols="20">
-                    </textarea>
+                <label for="name">Titre</label>
+                <input type="text" pInputText id="name" [(ngModel)]="document.titre" required autofocus />
             </div>
 
             <div class="field">
-                <label for="inventoryStatus">Inventory Status</label>
-                <p-dropdown [(ngModel)]="document.inventoryStatus" inputId="inventoryStatus" [options]="statuses">
+                <label for="inventoryStatus">Disponibilité</label>
+                <p-dropdown [(ngModel)]="document.dispo" inputId="dispo" [options]="statuses">
                     <ng-template pTemplate="selectedItem">
-                        <p-tag [value]="document.inventoryStatus.toUpperCase()"
+                        <p-tag [value]="document.dispo ? 'DISPONIBLE' : 'NON DISPONIBLE'"
                             [severity]="getDisponibility(document.dispo)" />
                     </ng-template>
                     <ng-template let-option pTemplate="item">
-                        <p-tag [value]="option.dispo" [severity]="getDisponibility(option.dispo)" />
+                        <p-tag [value]="option ? 'DISPONIBLE' : 'NON DISPONIBLE'"
+                            [severity]="getDisponibility(option)" />
                     </ng-template>
                 </p-dropdown>
             </div>
 
             <div class="field">
-                <label class="mb-3">Category</label>
                 <div class="formgrid grid">
                     <div class="field-radiobutton col-6">
-                        <p-radioButton id="category1" name="category" value="Accessories"
-                            [(ngModel)]="document.category" />
-                        <label for="category1">Accessories</label>
+                        <p-radioButton id="category1" name="category" value="LIVRE" [(ngModel)]="document.type" />
+                        <label for="category1">Livre</label>
                     </div>
                     <div class="field-radiobutton col-6">
-                        <p-radioButton id="category2" name="category" value="Clothing"
-                            [(ngModel)]="document.category" />
-                        <label for="category2">Clothing</label>
-                    </div>
-                    <div class="field-radiobutton col-6">
-                        <p-radioButton id="category3" name="category" value="Electronics"
-                            [(ngModel)]="document.category" />
-                        <label for="category3">Electronics</label>
-                    </div>
-                    <div class="field-radiobutton col-6">
-                        <p-radioButton id="category4" name="category" value="Fitness" [(ngModel)]="document.category" />
-                        <label for="category4">Fitness</label>
+                        <p-radioButton id="category2" name="category" value="PERIODIQUE" [(ngModel)]="document.type" />
+                        <label for="category2">Périodique</label>
                     </div>
                 </div>
             </div>
 
-            <div class="formgrid grid">
-                <div class="field col">
-                    <label for="price">Price</label>
-                    <p-inputNumber id="price" [(ngModel)]="document.price" mode="currency" currency="USD"
-                        locale="en-US" />
-                </div>
-                <div class="field col">
-                    <label for="quantity">Quantity</label>
-                    <p-inputNumber id="quantity" [(ngModel)]="document.quantity" />
-                </div>
+            <!-- Livre Details -->
+            <div *ngIf="document.type === 'LIVRE'" class="field">
+                <label for="annee">Année</label>
+                <input type="number" pInputText id="annee" [(ngModel)]="document.details!.annee" />
             </div>
+            <div *ngIf="document.type === 'LIVRE'" class="field">
+                <label for="auteur">Auteur</label>
+                <input type="text" pInputText id="auteur" [(ngModel)]="document.details!.auteur" />
+            </div>
+            <div *ngIf="document.type === 'LIVRE'" class="field">
+                <label for="edition">Édition</label>
+                <input type="text" pInputText id="edition" [(ngModel)]="document.details!.edition" />
+            </div>
+
+            <div *ngIf="document.type === 'LIVRE'" class="field">
+                <label for="exemplaires">Exemplaires</label>
+                <p-multiSelect id="exemplaires" [(ngModel)]="document.exemplaires"
+                    [options]="exemplairesOptions"></p-multiSelect>
+            </div>
+
+            <!-- Periodique Details -->
+
+            <div *ngIf="document.type === 'PERIODIQUE'" class="field">
+                <p-dropdown [options]="periodiciteOptions" [(ngModel)]="document.details!.periodicite"
+                    placeholder="Périodicité">
+                </p-dropdown>
+            </div>
+
+            <div *ngIf="document.type === 'PERIODIQUE'" class="field">
+                <label for="date">Date</label>
+                <input id="date" pInputText type="text" [(ngModel)]="document.details!.date" />
+            </div>
+
+
         </ng-template>
 
         <ng-template pTemplate="footer">
@@ -168,6 +166,7 @@
             <p-button pRipple label="Save" icon="pi pi-check" [text]="true" (click)="saveDocument()" />
         </ng-template>
     </p-dialog>
+
 
     <p-confirmDialog [style]="{ width: '450px' }" />
 </div>

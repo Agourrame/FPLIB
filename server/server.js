@@ -1,10 +1,58 @@
 const mongoose = require('mongoose');
 const express = require("express");
+const cors = require('cors');
 const app = express();
+const path = require('path');
+const fs = require('fs');
+
+app.use(cors());
+app.use(express.json());
 
 const documentSchema = new mongoose.Schema({
-  title: String,
-  content: String,
+  titre: String,
+  dispo: Boolean,
+  type: {
+    type: String,
+    required: true,
+    enum: ['LIVRE', 'PERIODIQUE'],
+  }, 
+  exemplaires: {
+    type: [String], 
+    default: undefined,  // Optional field
+  },
+  details: {
+    annee: {
+      type: Number,
+      required: function() {
+        return this.type === 'LIVRE'; 
+      },
+    },
+    edition: {
+      type: String,
+      required: function() {
+        return this.type === 'LIVRE'; 
+      },
+    },
+    auteur: {
+      type: String,
+      required: function() {
+        return this.type === 'LIVRE'; 
+      },
+    },
+    date: {
+      type: String,
+      required: function() {
+        return this.type === 'PERIODIQUE';  // Required only for type2
+      },
+    },
+    periodicite: {
+      type: String,
+      enum: ['MENSUEL', 'HEBDOMADAIRE', 'JOURNALIER'],
+      required: function() {
+        return this.type === 'PERIODIQUE';  // Required only for type2
+      },
+    },
+  },
 });
 
 const Document = mongoose.model('documents', documentSchema);
@@ -18,17 +66,14 @@ mongoose.connect(`${mongoDBURL}/${dbName}`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => { 
-  console.log("Connection Successful");
-})
-.catch((err) => { 
-  console.error("Connection Error:", err);
-});
+  .then(() => {
+    console.log("Connection Successful");
+  })
+  .catch((err) => {
+    console.error("Connection Error:", err);
+  });
 
-// Middleware to parse JSON bodies
-app.use(express.json());
 
-// Route to fetch all documents
 app.get('/api/documents', async (req, res) => {
   try {
     const documents = await Document.find();
@@ -39,11 +84,10 @@ app.get('/api/documents', async (req, res) => {
   }
 });
 
-// Route to add a new document
 app.post('/api/documents', async (req, res) => {
   try {
-    const { title, content } = req.body;
-    const newDocument = new Document({ title, content });
+    const newDocument = new Document(req.body);
+    console.log(newDocument);
     await newDocument.save();
     res.status(201).json(newDocument);
   } catch (err) {
@@ -52,12 +96,13 @@ app.post('/api/documents', async (req, res) => {
   }
 });
 
-// Route to update a document
 app.put('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, content } = req.body;
-    const updatedDocument = await Document.findByIdAndUpdate(id, { title, content }, { new: true });
+    const updatedDocument = req.body;
+    delete updatedDocument._id;
+    delete updatedDocument.__v;
+    const result = await Document.findByIdAndUpdate(id, updatedDocument, { new: true });
     res.json(updatedDocument);
   } catch (err) {
     console.error("Error updating document:", err);
@@ -65,16 +110,33 @@ app.put('/api/documents/:id', async (req, res) => {
   }
 });
 
-// Route to delete a document
 app.delete('/api/documents/:id', async (req, res) => {
-  console.log("delete")
   try {
     const { id } = req.params;
-    await Document.findOneAndDelete({ _id: new ObjectID(id) })
+    await Document.findOneAndDelete({ _id: new mongoose.Types.ObjectId(id) })
     res.json({ message: "Document deleted successfully" });
   } catch (err) {
     console.error("Error deleting document:", err);
     res.status(500).json({ error: "Failed to delete document" });
+  }
+});
+
+app.get('/api/download', async (req, res) => {
+  try {
+    const documents = await Document.find();
+    const filePath = path.join(__dirname, 'database.json');
+    fs.writeFileSync(filePath, JSON.stringify(documents, null, 2));
+    res.download(filePath, 'database.json', (err) => {
+      if (err) {
+        console.error("Error downloading file:", err);
+        res.status(500).json({ error: "Failed to download file" });
+      } else {
+        fs.unlinkSync(filePath); // Delete the file after download
+      }
+    });
+  } catch (err) {
+    console.error("Error generating JSON file:", err);
+    res.status(500).json({ error: "Failed to generate JSON file" });
   }
 });
 
